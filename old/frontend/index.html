@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Real-time Quiz Test Client</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f9f9f9;
+      padding: 2em;
+    }
+    #app {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 2em;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      font-size: 1em;
+    }
+    #question-section {
+      margin-top: 2em;
+    }
+    .option-btn {
+      display: block;
+      margin: 0.5em 0;
+      padding: 0.8em;
+      font-size: 1em;
+      width: 100%;
+    }
+    .log {
+      margin-top: 1em;
+      background: #eee;
+      padding: 1em;
+      font-size: 0.9em;
+      border-radius: 5px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h2>Join Quiz</h2>
+    <input id="playerName" placeholder="Player Name" />
+    <input id="roomID" placeholder="Room ID (e.g. testroom)" />
+    <button onclick="joinQuiz()">Join</button>
+    <button onclick="leaveRoom()" style="background:#f44336;color:white;">Leave Room</button>
+
+    <div id="question-section" style="display:none;">
+      <h3 id="question-text"></h3>
+      <div id="options"></div>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <script>
+    let socket;
+
+    function log(message) {
+      const logBox = document.getElementById("log");
+      logBox.textContent += message + "\n";
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function joinQuiz() {
+      const playerName = document.getElementById("playerName").value.trim();
+      const roomID = document.getElementById("roomID").value.trim();
+      if (!playerName || !roomID) return alert("Please enter name and room ID");
+
+      socket = new WebSocket("ws://localhost:8080/ws");
+
+      socket.onopen = () => {
+        socket.send(JSON.stringify({ playerName, roomID }));
+        log(`✅ Connected as ${playerName} to room ${roomID}`);
+      };
+
+      socket.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        if (msg.type === "player_joined") {
+          log(`👤 ${msg.name} joined`);
+        } else if (msg.type === "player_left") {
+          log(`👋 ${msg.name} left`);
+        } else if (msg.type === "question") {
+          displayQuestion(msg.question);
+        } else if (msg.type === "end") {
+          log(`🏆 Winner: ${msg.winner} (${msg.score} points)`);
+          document.getElementById("question-section").style.display = "none";
+        }
+      };
+
+      socket.onclose = () => {
+        log("🔌 Disconnected from server.");
+        document.getElementById("question-section").style.display = "none";
+      };
+
+      socket.onerror = (err) => {
+        log("❌ WebSocket error: " + err.message);
+      };
+    }
+
+    function displayQuestion(q) {
+      document.getElementById("question-section").style.display = "block";
+      document.getElementById("question-text").textContent = `Q${q.tag}: ${q.question}`;
+
+      const optionsHTML = ['a', 'b', 'c', 'd'].map(letter => {
+        return `<button class="option-btn" onclick="sendAnswer('option_${letter}')">${q['option_' + letter]}</button>`;
+      }).join('');
+
+      document.getElementById("options").innerHTML = optionsHTML;
+    }
+
+    function sendAnswer(answer) {
+      socket.send(JSON.stringify({ answer }));
+      document.getElementById("question-section").style.display = "none";
+      log(`✅ Answered: ${answer}`);
+    }
+
+    function leaveRoom() {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+        log("🚪 You left the room.");
+      }
+    }
+  </script>
+</body>
+</html>
+

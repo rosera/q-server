@@ -1,0 +1,99 @@
+{
+  "author": "cmdlinezero",
+  "endpoint": "tbc",
+  "id": "General Knowledge",
+  "publish": "24 Dec 2024",
+  "tasks": [
+    {
+      "tag": "1",
+      "question": "What is the capital city of Australia?",
+      "option_a": "Sydney",
+      "option_b": "Melbourne",
+      "option_c": "Canberra",
+      "option_d": "Perth",
+      "answer": "option_c"
+    },
+    {
+      "tag": "2",
+      "question": "Which country is known as the 'Land of the Rising Sun'?",
+      "option_a": "China",
+      "option_b": "Japan",
+      "option_c": "India",
+      "option_d": "Thailand",
+      "answer": "option_b"
+    },
+    {
+      "tag": "3",
+      "question": "Who painted the Mona Lisa?",
+      "option_a": "Vincent van Gogh",
+      "option_b": "Leonardo da Vinci",
+      "option_c": "Pablo Picasso",
+      "option_d": "Claude Monet",
+      "answer": "option_b"
+    },
+    {
+      "tag": "4",
+      "question": "What is the largest ocean in the world?",
+      "option_a": "Pacific Ocean",
+      "option_b": "Atlantic Ocean",
+      "option_c": "Indian Ocean",
+      "option_d": "Arctic Ocean",
+      "answer": "option_a"
+    },
+    {
+      "tag": "5",
+      "question": "Which mountain range is the longest in the world?",
+      "option_a": "Andes Mountains",
+      "option_b": "Himalayas",
+      "option_c": "Rocky Mountains",
+      "option_d": "Appalachian Mountains",
+      "answer": "option_b"
+    },
+    {
+      "tag": "6",
+      "question": "What is the chemical symbol for gold?",
+      "option_a": "Au",
+      "option_b": "Ag",
+      "option_c": "Fe",
+      "option_d": "Cu",
+      "answer": "option_a"
+    },
+    {
+      "tag": "7",
+      "question": "Who wrote the play 'Romeo and Juliet'?",
+      "option_a": "William Shakespeare",
+      "option_b": "Charles Dickens",
+      "option_c": "Jane Austen",
+      "option_d": "Oscar Wilde",
+      "answer": "option_a"
+    },
+    {
+      "tag": "8",
+      "question": "What is the capital city of France?",
+      "option_a": "London",
+      "option_b": "Paris",
+      "option_c": "Rome",
+      "option_d": "Berlin",
+      "answer": "option_b"
+    },
+    {
+      "tag": "9",
+      "question": "Which planet is known as the 'Red Planet'?",
+      "option_a": "Venus",
+      "option_b": "Mars",
+      "option_c": "Jupiter",
+      "option_d": "Saturn",
+      "answer": "option_b"
+    },
+    {
+      "tag": "10",
+      "question": "What is the largest country in the world by land area?",
+      "option_a": "China",
+      "option_b": "Russia",
+      "option_c": "United States",
+      "option_d": "Canada",
+      "answer": "option_b"
+    }
+  ],
+  "uri": "https://quizzrr.app"
+}
