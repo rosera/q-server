@@ -21,18 +21,26 @@ The backend server perform admin and user functions using websockets.
 
 ## Running the q-server
 
-```bash
-./q-server
+1. Initiate the quizzrr websocket server
+   ```bash
+   ./q-server
+   ```
 
-```
+2. Open a new terminal to accept `websocket` commands.
 
-To interact with the application use the `websocat` tool to send message to the api.
+3. To interact with the application use the `websocat` tool to send message to the api.
 
-Example: To run the `websocat` server on `localhost`
+   Example: To run the `websocat` server on `localhost`
 
-```bash
-websocat ws://localhost:8080/ws
-```
+   ```bash
+   websocat ws://localhost:8080/ws
+   ```
+
+   __NOTE:__
+   Use `nix` to run websocat
+   ```bash
+   nix-shell -p websocate
+   ```
 
 With the websocket available, send the required command to the backend api.
 Available commands are detailed below:
@@ -46,56 +54,70 @@ Available commands are detailed below:
 |------|------|
 | Admin | {"type": "create_room", "room_id": "room123"} |
 
-
-```json
-{"type": "create_room", "room_id": "room123"}
-```
+1. Admins can create a room on the server
+   ```json
+   {"type": "create_room", "room_id": "room123"}
+   ```
+Players can join the room by using the `room_id`
 
 ## Join Room
 
-Join a game room defined by the room_id.
+Users can join a game room defined by entering the room_id.
 
 | Role | JSON |
 |------|------|
 | User | {"type": "join_room", "room_id": "room123", "name": "Alice"} |
 
-```json
-{"type": "join_room", "room_id": "room123", "name": "Alice"} 
-```
+1. Add user: `Alice`
+   ```json
+   {"type": "join_room", "room_id": "room123", "name": "Alice"} 
+   ```
+
+2. Add user: `Bob`
+   ```json
+   {"type": "join_room", "room_id": "room123", "name": "Bob"} 
+   ```
+
+3. Add user: `Carol`
+   ```json
+   {"type": "join_room", "room_id": "room123", "name": "Carol"} 
+   ```
 
 ## Start Game 
 
-Start a game room defined by the room_id.
+Admin can start a game room defined by the room_id.
 
 | Role | JSON |
 |------|------|
 | Admin | {"type": "start_room", "room_id": "room123"} |
 
-```json
-{"type": "start_room", "room_id": "room123"}
-```
+1. Admin start a game in `room_id`
+   ```json
+   {"type": "start_room", "room_id": "room123"}
+   ```
 
 ## End Game 
 
-End a game room defined by the room_id.
+Admin can end a game defined by the room_id.
 
 | Role | JSON |
 |------|------|
 | Admin | {"type": "end_game", "room_id": "room123"} |
 
-```json
-{"type": "end_room", "room_id": "room123"}
-```
+1. End the game defined by `room_id`
+   ```json
+   {"type": "end_room", "room_id": "room123"}
+   ```
 
 ## Next Question
 
-Move to the next question.
+Admin can indicate to move to the next question.
 
 | Role | JSON |
 |------|------|
 | Admin | {"type": "next_question", "room_id": "room123"} |
 
-
-```json
-{"type": "end_room", "room_id": "room123"}
-```
+1. Admin event to move to the next question
+   ```json
+   {"type": "next_question", "room_id": "room123"}
+   ```
