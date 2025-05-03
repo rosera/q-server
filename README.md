@@ -58,6 +58,14 @@ Available commands are detailed below:
    ```json
    {"type": "create_room", "room_id": "room123"}
    ```
+2. Admins can create a room on the server
+   ```json
+   {"type": "create_room", "room_id": "room113"}
+   
+3. Admins can create a room on the server
+   ```json
+   {"type": "create_room", "room_id": "room103"}
+   
 Players can join the room by using the `room_id`
 
 ## Join Room
@@ -83,6 +91,11 @@ Users can join a game room defined by entering the room_id.
    {"type": "join_room", "room_id": "room123", "name": "Carol"} 
    ```
 
+3. Add user: `Danny`
+   ```json
+   {"type": "join_room", "room_id": "room103", "name": "Danny"} 
+   ```
+
 ## Start Game 
 
 Admin can start a game room defined by the room_id.
@@ -96,19 +109,6 @@ Admin can start a game room defined by the room_id.
    {"type": "start_room", "room_id": "room123"}
    ```
 
-## End Game 
-
-Admin can end a game defined by the room_id.
-
-| Role | JSON |
-|------|------|
-| Admin | {"type": "end_game", "room_id": "room123"} |
-
-1. End the game defined by `room_id`
-   ```json
-   {"type": "end_room", "room_id": "room123"}
-   ```
-
 ## Next Question
 
 Admin can indicate to move to the next question.
@@ -120,4 +120,17 @@ Admin can indicate to move to the next question.
 1. Admin event to move to the next question
    ```json
    {"type": "next_question", "room_id": "room123"}
+   ```
+
+## End Game 
+
+Admin can end a game defined by the room_id.
+
+| Role | JSON |
+|------|------|
+| Admin | {"type": "end_game", "room_id": "room123"} |
+
+1. End the game defined by `room_id`
+   ```json
+   {"type": "end_room", "room_id": "room123"}
    ```
