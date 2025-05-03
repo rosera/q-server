@@ -11,6 +11,7 @@ type Room struct {
 	Players  map[*websocket.Conn]string
 	Questions []Task
 	CurrentQ int
+	GameOver bool
 }
 
 type Hub struct {

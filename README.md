@@ -11,6 +11,7 @@ Supported functionality:
 - [ ] Start Game
 - [ ] End Game
 - [ ] Next Game Question
+- [ ] List Room
 
 ## Architecture
 
@@ -122,6 +123,20 @@ Admin can indicate to move to the next question.
    {"type": "next_question", "room_id": "room123"}
    ```
 
+## Reset Game 
+
+Admin can reset a game defined by the room_id.
+
+| Role | JSON |
+|------|------|
+| Admin | {"type": "reset_game", "room_id": "room123"} |
+
+1. End the game defined by `room_id`
+   ```json
+   {"type": "reset_game", "room_id": "room123"}
+   ```
+
+
 ## End Game 
 
 Admin can end a game defined by the room_id.
@@ -133,4 +148,17 @@ Admin can end a game defined by the room_id.
 1. End the game defined by `room_id`
    ```json
    {"type": "end_room", "room_id": "room123"}
+   ```
+
+## List Room 
+
+Users can list room and metadata.
+
+| Role | JSON |
+|------|------|
+| Users | {"type": "list_rooms"} |
+
+1. List rooms
+   ```json
+   {"type": "list_rooms"}
    ```
