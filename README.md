@@ -9,6 +9,7 @@ Supported functionality:
 - [ ] Create a Room
 - [ ] Join a Room
 - [ ] Start Game
+- [ ] Reset Game
 - [ ] End Game
 - [ ] Next Game Question
 - [ ] List Room
