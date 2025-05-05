@@ -86,22 +86,22 @@ Users can join a game room defined by entering the room_id.
 
 1. Add user: `Alice`
    ```json
-   {"type": "join_room", "room_id": "room123", "name": "Alice"}
+   {"type":"join_room","room_id":"room123","client_id":"cli-alice","role":"player","name":"Alice"}
    ```
 
 2. Add user: `Bob`
    ```json
-   {"type": "join_room", "room_id": "room123", "name": "Bob"}
+   {"type":"join_room","room_id":"room123","client_id":"cli-bob","role":"player","name":"Bob"}
    ```
 
 3. Add user: `Carol`
    ```json
-   {"type": "join_room", "room_id": "room123", "name": "Carol"}
+   {"type":"join_room","room_id":"room123","client_id":"cli-carol","role":"player","name":"Carol"}
    ```
 
 3. Add user: `Danny`
    ```json
-   {"type": "join_room", "room_id": "room103", "name": "Danny"}
+   {"type":"join_room","room_id":"room123","client_id":"cli-danny","role":"player","name":"Danny"}
    ```
 
 ## Start Game 
