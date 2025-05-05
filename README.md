@@ -6,13 +6,18 @@ A websocket server to enable simple multi-player functionality.
 
 Supported functionality:
 
+
 - [ ] Create a Room
+
 - [ ] Join a Room
+- [ ] Leave a Room
+- [ ] List Room
+
 - [ ] Start Game
 - [ ] Reset Game
 - [ ] End Game
+
 - [ ] Next Game Question
-- [ ] List Room
 
 ## Architecture
 
@@ -67,6 +72,7 @@ Available commands are detailed below:
 3. Admins can create a room on the server
    ```json
    {"type": "create_room", "room_id": "room103"}
+   ```
    
 Players can join the room by using the `room_id`
 
@@ -80,22 +86,22 @@ Users can join a game room defined by entering the room_id.
 
 1. Add user: `Alice`
    ```json
-   {"type": "join_room", "room_id": "room123", "name": "Alice"} 
+   {"type": "join_room", "room_id": "room123", "name": "Alice"}
    ```
 
 2. Add user: `Bob`
    ```json
-   {"type": "join_room", "room_id": "room123", "name": "Bob"} 
+   {"type": "join_room", "room_id": "room123", "name": "Bob"}
    ```
 
 3. Add user: `Carol`
    ```json
-   {"type": "join_room", "room_id": "room123", "name": "Carol"} 
+   {"type": "join_room", "room_id": "room123", "name": "Carol"}
    ```
 
 3. Add user: `Danny`
    ```json
-   {"type": "join_room", "room_id": "room103", "name": "Danny"} 
+   {"type": "join_room", "room_id": "room103", "name": "Danny"}
    ```
 
 ## Start Game 
@@ -111,18 +117,6 @@ Admin can start a game room defined by the room_id.
    {"type": "start_room", "room_id": "room123"}
    ```
 
-## Next Question
-
-Admin can indicate to move to the next question.
-
-| Role | JSON |
-|------|------|
-| Admin | {"type": "next_question", "room_id": "room123"} |
-
-1. Admin event to move to the next question
-   ```json
-   {"type": "next_question", "room_id": "room123"}
-   ```
 
 ## Reset Game 
 
@@ -163,3 +157,18 @@ Users can list room and metadata.
    ```json
    {"type": "list_rooms"}
    ```
+
+## Next Question
+
+Admin can indicate to move to the next question.
+
+| Role | JSON |
+|------|------|
+| Admin | {"type": "next_question", "room_id": "room123"} |
+
+1. Admin event to move to the next question
+   ```json
+   {"type": "next_question", "room_id": "room123"}
+   ```
+
+
