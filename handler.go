@@ -82,7 +82,7 @@ func handleCreateRoom(conn *websocket.Conn, msg Message) {
 	quizHub.Rooms[msg.RoomID] = &Room{
 		ID:       msg.RoomID,
 		Admin:    conn,
-		Players:  make(map[*websocket.Conn]string),
+		Players:  make(map[*websocket.Conn]Player),
 		Questions: quiz.Tasks,
 		CurrentQ: 0,
 		GameOver: false,
@@ -104,14 +104,15 @@ func handleJoinRoom(conn *websocket.Conn, msg Message) {
 	}
 
 	if room.Players == nil {
-    room.Players = make(map[*websocket.Conn]string)
+    //room.Players = make(map[*websocket.Conn]string)
+    room.Players = make(map[*websocket.Conn]Player)
   }
 
-	room.Players[conn] = msg.Name
-  room.PlayerList = append(room.PlayerList, Player{Name: msg.Name})
+	room.Players[conn] = Player{Name: msg.Name, ClientID: msg.ClientID}
+	room.PlayerList = append(room.PlayerList, Player{Name: msg.Name, ClientID: msg.ClientID })
 
 
-	log.Print("Player Joined: ", msg.Name)
+	log.Print("Player Joined: ", msg.Name, " ", msg.ClientID)
 	log.Print("Players: ", room.GetPlayerList())
 	
 	// Notify the joining player
@@ -304,6 +305,8 @@ func handleListRooms(conn *websocket.Conn) {
 	if err := conn.WriteJSON(response); err != nil {
 	  log.Printf("error writing list_rooms response: %v", err)
   }
+	
+	log.Print("List Rooms: ", roomList)
 
 }
 
@@ -317,29 +320,48 @@ func handleLeaveRoom(conn *websocket.Conn, msg Message) {
 		return
 	}
 
-	playerName, exists := room.Players[conn]
-	if exists {
-		delete(room.Players, conn)
+	var playerConnToRemove *websocket.Conn
+	var leavingPlayerName string
+
+	// Find the player connection by clientID
+	for c, p := range room.Players {
+		if p.ClientID == msg.ClientID {
+			playerConnToRemove = c
+			leavingPlayerName = p.Name
+			break
+		}
+	}
+
+	if playerConnToRemove != nil {
+		delete(room.Players, playerConnToRemove)
 
 		// Remove from PlayerList
 		for i, p := range room.PlayerList {
-			if p.Name == playerName {
+			if p.ClientID == msg.ClientID {
 				room.PlayerList = append(room.PlayerList[:i], room.PlayerList[i+1:]...)
 				break
 			}
 		}
 
 		// Notify remaining players
-		for playerConn := range room.Players {
-			playerConn.WriteJSON(map[string]string{
-				"type":  "player_left",
-				"name":  playerName,
-			})
-		}
+		// for playerConn := range room.Players {
+//		for playerConn := range room.PlayerList {
+//			playerConn.WriteJSON(map[string]string{
+//				"type": "player_left",
+//				"name": leavingPlayerName,
+//			})
+//		}
 	}
 
-	// Optionally remove room if empty (except admin)
+	room.Broadcast(map[string]interface{}{
+  	"type":   "leave_room",
+  	"players": leavingPlayerName, 
+  })
+
+	// Optionally remove the room if empty (and no admin)
 	if len(room.Players) == 0 && room.Admin == nil {
 		delete(quizHub.Rooms, msg.RoomID)
 	}
+
+	log.Print("Player leaving room: ", leavingPlayerName)
 }

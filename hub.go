@@ -7,12 +7,14 @@ import (
 
 type Player struct {
 	Name string `json:"name"`
+	ClientID string `json:"client_id"`
 }
 
 type Room struct {
 	ID       string
 	Admin    *websocket.Conn
-	Players  map[*websocket.Conn]string
+	// Players  map[*websocket.Conn]string
+	Players  map[*websocket.Conn]Player
 	PlayerList []Player
 	Questions []Task
 	CurrentQ int
