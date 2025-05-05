@@ -41,7 +41,7 @@ The backend server perform admin and user functions using websockets.
    __NOTE:__
    Use `nix` to run websocat
    ```bash
-   nix-shell -p websocate
+   nix-shell -p websocat
    ```
 
 With the websocket available, send the required command to the backend api.
