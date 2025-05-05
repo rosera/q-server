@@ -9,6 +9,25 @@ import (
 
 var upgrader = websocket.Upgrader{}
 
+func (r *Room) GetPlayerList() []string {
+	players := []string{}
+
+  for _, p := range r.PlayerList {
+  	players = append(players, p.Name)
+  }
+
+  return players
+}
+
+
+func (r *Room) Broadcast(message interface{}) {
+	if r.Admin != nil {
+		if err := r.Admin.WriteJSON(message); err != nil {
+			log.Printf("broadcast error to admin: %v", err)
+		}
+	}
+}
+
 func handleConnections(w http.ResponseWriter, r *http.Request) {
 	conn, _ := upgrader.Upgrade(w, r, nil)
 	defer conn.Close()
@@ -22,20 +41,29 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		}
 
 		switch msg.Type {
+			// GAME
       case "create_room":
       	handleCreateRoom(conn, msg)
-      case "join_room":
-      	handleJoinRoom(conn, msg)
+
+			// GAME
       case "start_game":
       	handleStartGame(conn, msg)
-      case "next_question":
-      	handleNextQuestion(conn, msg)
       case "end_game":
       	handleEndGame(conn, msg)
       case "restart_game":
       	handleRestartGame(conn, msg)
+
+			// ROOM(s)
       case "list_rooms":
       	handleListRooms(conn)
+      case "join_room":
+      	handleJoinRoom(conn, msg)
+      case "leave_room":
+      	handleLeaveRoom(conn, msg)
+
+			// ROOM(s)
+      case "next_question":
+      	handleNextQuestion(conn, msg)
     }
 
 	}
@@ -59,6 +87,9 @@ func handleCreateRoom(conn *websocket.Conn, msg Message) {
 		CurrentQ: 0,
 		GameOver: false,
 	}
+
+	log.Println("Created Room: ", msg.RoomID)
+
 	conn.WriteJSON(map[string]string{"type": "room_created", "room_id": msg.RoomID})
 }
 
@@ -71,8 +102,30 @@ func handleJoinRoom(conn *websocket.Conn, msg Message) {
 		conn.WriteJSON(map[string]string{"type": "error", "message": "Room not found"})
 		return
 	}
+
+	if room.Players == nil {
+    room.Players = make(map[*websocket.Conn]string)
+  }
+
 	room.Players[conn] = msg.Name
-	conn.WriteJSON(map[string]string{"type": "joined", "room_id": msg.RoomID})
+  room.PlayerList = append(room.PlayerList, Player{Name: msg.Name})
+
+
+	log.Print("Player Joined: ", msg.Name)
+	log.Print("Players: ", room.GetPlayerList())
+	
+	// Notify the joining player
+	conn.WriteJSON(map[string]string{
+		"type": "joined", 
+		"room_id": msg.RoomID,
+	})
+
+  // Broadcast player joined
+	room.Broadcast(map[string]interface{}{
+    "type": "player_list",
+    "players": room.GetPlayerList(),
+  })
+
 }
 
 func handleStartGame(conn *websocket.Conn, msg Message) {
@@ -99,54 +152,23 @@ func handleStartGame(conn *websocket.Conn, msg Message) {
 	for player := range room.Players {
 		player.WriteJSON(payload)
 	}
+
+	log.Print("Game Started in Room: ", msg.RoomID)
 }
 
-// func handleNextQuestion(conn *websocket.Conn, msg Message) {
-// 	quizHub.Mu.Lock()
-// 	defer quizHub.Mu.Unlock()
-// 
-// 	room, ok := quizHub.Rooms[msg.RoomID]
-// 	if !ok {
-// 		conn.WriteJSON(map[string]string{"type": "error", "message": "Room not found"})
-// 		return
-// 	}
-// 
-// 	log.Println("CurrentQ: %d >= Question: %d", room.CurrentQ, len(room.Questions))
-// 	if room.CurrentQ >= len(room.Questions) {
-// 		// End game automatically if no more questions
-// 		handleEndGame(conn, msg)
-// 		return
-// 	}
-// 
-// 	question := room.Questions[room.CurrentQ]
-// 	payload := map[string]interface{}{
-// 		"type":     "question",
-// 		"tag":      question.Tag,
-// 		"question": question.Question,
-// 		"options": map[string]string{
-// 			"a": question.OptionA,
-// 			"b": question.OptionB,
-// 			"c": question.OptionC,
-// 			"d": question.OptionD,
-// 		},
-// 	}
-// 
-// 	for player := range room.Players {
-// 		player.WriteJSON(payload)
-// 	}
-// 
-// 	room.CurrentQ++
-// }
 
 func handleNextQuestion(conn *websocket.Conn, msg Message) {
 	quizHub.Mu.Lock()
 	defer quizHub.Mu.Unlock()
+
 
 	room, ok := quizHub.Rooms[msg.RoomID]
 	if !ok {
 		conn.WriteJSON(map[string]string{"type": "error", "message": "Room not found"})
 		return
 	}
+
+	room.CurrentQ++ // Increment after sending
 
 	// Check if the room has been closed
   if room.GameOver {
@@ -189,7 +211,7 @@ func handleNextQuestion(conn *websocket.Conn, msg Message) {
 		player.WriteJSON(payload)
 	}
 
-	room.CurrentQ++ // Increment after sending
+	log.Print("Next Question: ", room.CurrentQ)
 }
 
 func handleEndGame(conn *websocket.Conn, msg Message) {
@@ -212,6 +234,8 @@ func handleEndGame(conn *websocket.Conn, msg Message) {
 	for player := range room.Players {
 		player.WriteJSON(payload)
 	}
+	
+	log.Print("End Game: ", msg.RoomID)
 }
 
 func handleRestartGame(conn *websocket.Conn, msg Message) {
@@ -253,6 +277,7 @@ func handleRestartGame(conn *websocket.Conn, msg Message) {
 	}
 
 	room.CurrentQ++ // Prep for next
+	log.Print("Restart Game: ", msg.RoomID)
 }
 
 
@@ -280,4 +305,41 @@ func handleListRooms(conn *websocket.Conn) {
 	  log.Printf("error writing list_rooms response: %v", err)
   }
 
+}
+
+func handleLeaveRoom(conn *websocket.Conn, msg Message) {
+	quizHub.Mu.Lock()
+	defer quizHub.Mu.Unlock()
+
+	room, ok := quizHub.Rooms[msg.RoomID]
+	if !ok {
+		conn.WriteJSON(map[string]string{"type": "error", "message": "Room not found"})
+		return
+	}
+
+	playerName, exists := room.Players[conn]
+	if exists {
+		delete(room.Players, conn)
+
+		// Remove from PlayerList
+		for i, p := range room.PlayerList {
+			if p.Name == playerName {
+				room.PlayerList = append(room.PlayerList[:i], room.PlayerList[i+1:]...)
+				break
+			}
+		}
+
+		// Notify remaining players
+		for playerConn := range room.Players {
+			playerConn.WriteJSON(map[string]string{
+				"type":  "player_left",
+				"name":  playerName,
+			})
+		}
+	}
+
+	// Optionally remove room if empty (except admin)
+	if len(room.Players) == 0 && room.Admin == nil {
+		delete(quizHub.Rooms, msg.RoomID)
+	}
 }

@@ -22,6 +22,7 @@ type Task struct {
 type Message struct {
 	Type   string `json:"type"`
 	RoomID string `json:"room_id"`
+	ClientID string `json:"client_id"`
 	Name   string `json:"name,omitempty"`
 }
 
